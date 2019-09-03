@@ -37,7 +37,7 @@ void TransactionNonceCheck::init()
     m_endblk = 0;
     updateCache(true);
 }
-bool TransactionNonceCheck::isBlockLimitOk(Transaction const& _tx)
+bool TransactionNonceCheck::isBlockLimitOk(Transaction const&)
 {
 #if 0
     if (_tx.blockLimit() == Invalid256 || m_blockNumber >= _tx.blockLimit() ||
