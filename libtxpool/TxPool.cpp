@@ -206,10 +206,11 @@ bool TxPool::txExists(dev::h256 const& txHash)
  * @param _drop_policy : Import transaction policy
  * @return ImportResult : import result
  */
-ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool _needinsert)
+ImportResult TxPool::verify(Transaction& trans, IfDropped, bool)
 {
     /// check whether this transaction has been existed
     h256 tx_hash = trans.sha3();
+#if 0
     if (m_txsHash.find(tx_hash) != m_txsHash.end())
     {
         TXPOOL_LOG(TRACE) << LOG_DESC("Verify: already known tx")
@@ -226,6 +227,7 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool _ne
     /// check nonce
     if (false == isBlockLimitOrNonceOk(trans, _needinsert))
         return ImportResult::TransactionNonceCheckFail;
+#endif
     try
     {
         /// check transaction signature here when everything is ok
@@ -238,8 +240,10 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool _ne
     }
     /// nonce related to txpool must be checked at the last, since this will insert nonce of the
     /// valid transaction into the txpool nonce cache
+    /*
     if (false == txPoolNonceCheck(trans))
         return ImportResult::TxPoolNonceCheckFail;
+    */
     /// check chainId and groupId
     if (false == trans.checkChainIdAndGroupId(u256(g_BCOSConfig.chainId()), u256(m_groupId)))
     {

@@ -37,8 +37,9 @@ void TransactionNonceCheck::init()
     m_endblk = 0;
     updateCache(true);
 }
-bool TransactionNonceCheck::isBlockLimitOk(Transaction const& _tx)
+bool TransactionNonceCheck::isBlockLimitOk(Transaction const&)
 {
+#if 0
     if (_tx.blockLimit() == Invalid256 || m_blockNumber >= _tx.blockLimit() ||
         _tx.blockLimit() > (m_blockNumber + m_maxBlockLimit))
     {
@@ -48,6 +49,7 @@ bool TransactionNonceCheck::isBlockLimitOk(Transaction const& _tx)
                                   << LOG_KV("curBlk", m_blockNumber) << LOG_KV("tx", _tx.sha3());
         return false;
     }
+#endif
     return true;
 }
 
