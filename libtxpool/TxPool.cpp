@@ -206,7 +206,7 @@ bool TxPool::txExists(dev::h256 const& txHash)
  * @param _drop_policy : Import transaction policy
  * @return ImportResult : import result
  */
-ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool)
+ImportResult TxPool::verify(Transaction& trans, IfDropped, bool)
 {
     /// check whether this transaction has been existed
     h256 tx_hash = trans.sha3();
