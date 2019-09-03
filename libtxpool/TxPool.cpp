@@ -206,7 +206,7 @@ bool TxPool::txExists(dev::h256 const& txHash)
  * @param _drop_policy : Import transaction policy
  * @return ImportResult : import result
  */
-ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool _needinsert)
+ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool)
 {
     /// check whether this transaction has been existed
     h256 tx_hash = trans.sha3();
@@ -224,8 +224,10 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped _drop_policy, bool _ne
         return ImportResult::AlreadyInChain;
     }
     /// check nonce
+#if 0
     if (false == isBlockLimitOrNonceOk(trans, _needinsert))
         return ImportResult::TransactionNonceCheckFail;
+#endif
     try
     {
         /// check transaction signature here when everything is ok
