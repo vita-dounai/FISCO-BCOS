@@ -240,8 +240,10 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped, bool)
     }
     /// nonce related to txpool must be checked at the last, since this will insert nonce of the
     /// valid transaction into the txpool nonce cache
+    /*
     if (false == txPoolNonceCheck(trans))
         return ImportResult::TxPoolNonceCheckFail;
+    */
     /// check chainId and groupId
     if (false == trans.checkChainIdAndGroupId(u256(g_BCOSConfig.chainId()), u256(m_groupId)))
     {
