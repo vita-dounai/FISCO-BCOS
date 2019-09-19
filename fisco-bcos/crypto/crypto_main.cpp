@@ -21,8 +21,10 @@
  * @date 2019-09-19
  */
 
+#include <libdevcore/Common.h>
 #include <libdevcrypto/AES.h>
-#include <boost/lexical_cast.hpp>
+#include <libdevcrypto/Common.h>
+#include <libdevcrypto/Hash.h>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -33,23 +35,22 @@ using namespace std::chrono;
 using namespace dev;
 using namespace boost;
 
-int main(int argc, const char* argv[])
+int main()
 {
-    auto repeatCount = 10000000;
-    if (argc > 1)
-    {
-        try
-        {
-            repeatCount = lexical_cast<decltype(repeatCount)>(argv[1]);
-        }
-        catch (bad_lexical_cast&)
-        {
-        }
-    }
-    // AES benchmark
-    cout << "Testing AES encrypt/decrypt ..." << endl;
+    auto repeatCount = 1000000;
+
+    auto version = string("");
+    #ifdef FISCO_GM
+    version = " for GM";
+    #endif
+
+    cout << "Testing encrypt/decrypt performace" << version << " ..." << endl;
+    cout << "[repeatCount] = " << repeatCount << endl;
     auto key = string("0123456789ABCDEF");
-    auto data = string("8299b6471f3d178583392668575997b476be5ca474beb98347244cfd784e72ad");
+    auto data = string(
+        "A communication between President Donald Trump and a world leader prompted a "
+        "whistleblower complaint that is now at the center of a dispute between the director of "
+        "national intelligence and Congress, a source familiar with the case told CNN.");
 
     auto encryptedData = string();
     auto startTime = utcTime();
@@ -60,8 +61,9 @@ int main(int argc, const char* argv[])
     auto endTime = utcTime();
     auto encryptCost = endTime - startTime;
     encryptCost = encryptCost == 0 ? 1 : encryptCost;
-    cout << "Encrypt performance: " << repeatCount / ((double)encryptCost / 1000)
-         << " times per second" << endl;
+    cout.precision(2);
+    cout << "[encryptPerformance] = " << fixed << repeatCount / ((double)encryptCost / 1000)
+         << " tps" << endl;
 
     startTime = utcTime();
     for (auto i = 0; i < repeatCount; ++i)
@@ -71,8 +73,35 @@ int main(int argc, const char* argv[])
     endTime = utcTime();
     auto decrtyptCost = endTime - startTime;
     decrtyptCost = decrtyptCost == 0 ? 1 : decrtyptCost;
-    cout << "Decrypt performance: " << repeatCount / ((double)decrtyptCost / 1000)
-         << " times per second" << endl;
+    cout << "[decryptPerformance] = " << fixed << repeatCount / ((double)decrtyptCost / 1000)
+         << " tps" << endl;
+
+    repeatCount = 100000;
+    cout << "Testing sign/verify performance" << version << " ..." << endl;
+    cout << "[repeatCount] = " << repeatCount << endl;
+    auto keyPair = KeyPair::create();
+    auto hash = sha3(dev::ref(asBytes(data)));
+
+    Signature signature;
+    startTime = utcTime();
+    for (auto i = 0; i < repeatCount; ++i)
+    {
+        signature = sign(keyPair.secret(), hash);
+    }
+    endTime = utcTime();
+    auto signCost = endTime - startTime;
+    cout << "[signPerformance] = " << repeatCount / ((double)signCost / 1000) << " tps"
+         << endl;
+
+    startTime = utcTime();
+    for (auto i = 0; i < repeatCount; ++i)
+    {
+        verify(keyPair.pub(), signature, hash);
+    }
+    endTime = utcTime();
+    auto verifyCost = endTime - startTime;
+    cout << "[verifyPerformance] = " << repeatCount / ((double)verifyCost / 1000)
+         << " tps" << endl;
 
     return 0;
 }
