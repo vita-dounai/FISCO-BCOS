@@ -210,7 +210,7 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped, bool)
 {
     /// check whether this transaction has been existed
     h256 tx_hash = trans.sha3();
-#if 0
+
     if (m_txsHash.find(tx_hash) != m_txsHash.end())
     {
         TXPOOL_LOG(TRACE) << LOG_DESC("Verify: already known tx")
@@ -227,7 +227,7 @@ ImportResult TxPool::verify(Transaction& trans, IfDropped, bool)
     /// check nonce
     if (false == isBlockLimitOrNonceOk(trans, _needinsert))
         return ImportResult::TransactionNonceCheckFail;
-#endif
+        
     try
     {
         /// check transaction signature here when everything is ok
