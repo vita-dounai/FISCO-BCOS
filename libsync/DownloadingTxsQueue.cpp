@@ -88,6 +88,7 @@ void DownloadingTxsQueue::pop2TxPool(
         record_time = utcTime();
 
         // parallel verify transaction before import
+        /*
         tbb::parallel_for(
             tbb::blocked_range<size_t>(0, txs.size()), [&](const tbb::blocked_range<size_t>& _r) {
                 for (size_t j = _r.begin(); j != _r.end(); ++j)
@@ -96,6 +97,7 @@ void DownloadingTxsQueue::pop2TxPool(
                         txs[j].sender();
                 }
             });
+        */
 
         auto verifySig_time_cost = utcTime() - record_time;
         record_time = utcTime();

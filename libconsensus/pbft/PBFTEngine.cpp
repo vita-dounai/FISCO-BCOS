@@ -720,7 +720,7 @@ void PBFTEngine::execBlock(Sealing& sealing, PrepareReq const& req, std::ostring
     /// ignore the signature verification of the transactions have already been verified in
     /// transation pool
     /// the transactions that has not been verified by the txpool should be verified
-    m_txPool->verifyAndSetSenderForBlock(sealing.block);
+    // m_txPool->verifyAndSetSenderForBlock(sealing.block);
     auto verifyAndSetSender_time_cost = utcTime() - record_time;
     record_time = utcTime();
 
