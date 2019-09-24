@@ -326,8 +326,10 @@ bool PBFTEngine::getNodeIDByIndex(h512& nodeID, const IDXTYPE& idx) const
     return true;
 }
 
-bool PBFTEngine::checkSign(PBFTMsg const& req) const
+bool PBFTEngine::checkSign(PBFTMsg const& ) const
 {
+    return true;
+    /*
     h512 node_id;
     if (getNodeIDByIndex(node_id, req.idx))
     {
@@ -336,6 +338,7 @@ bool PBFTEngine::checkSign(PBFTMsg const& req) const
                dev::verify(pub_id, req.sig2, req.fieldsWithoutBlock());
     }
     return false;
+    */
 }
 
 /**
@@ -596,6 +599,7 @@ bool PBFTEngine::checkBlock(Block const& block)
         return false;
     }
     /// check sign num
+    /*
     auto sig_list = block.sigList();
     if (sig_list.size() < minValidNodes())
     {
@@ -604,7 +608,9 @@ bool PBFTEngine::checkBlock(Block const& block)
                               << LOG_KV("minValidSign", minValidNodes());
         return false;
     }
+    */
     /// check sign
+    /*
     for (auto sign : sig_list)
     {
         if (sign.first >= sealers.size())
@@ -625,6 +631,7 @@ bool PBFTEngine::checkBlock(Block const& block)
             return false;
         }
     }  /// end of check sign
+    */
 
     /// Check whether the number of transactions in block exceeds the limit
     if (block.transactions().size() > maxBlockTransactions())

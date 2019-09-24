@@ -47,13 +47,13 @@ public:
     /// specified SignReq exists in the sign-cache or not?
     inline bool isExistSign(SignReq const& req)
     {
-        return cacheExists(m_signCache, req.block_hash, req.sig.hex());
+        return cacheExists(m_signCache, req.block_hash, req.idx);
     }
 
     /// specified commitReq exists in the commit-cache or not?
     inline bool isExistCommit(CommitReq const& req)
     {
-        return cacheExists(m_commitCache, req.block_hash, req.sig.hex());
+        return cacheExists(m_commitCache, req.block_hash, req.idx);
     }
 
     /// specified viewchangeReq exists in the viewchang-cache or not?
@@ -124,11 +124,11 @@ public:
         removeInvalidCommitCache(req.block_hash, req.view);
     }
     /// add specified signReq to the sign-cache
-    inline void addSignReq(SignReq const& req) { m_signCache[req.block_hash][req.sig.hex()] = req; }
+    inline void addSignReq(SignReq const& req) { m_signCache[req.block_hash][req.idx] = req; }
     /// add specified commit cache to the commit-cache
     inline void addCommitReq(CommitReq const& req)
     {
-        m_commitCache[req.block_hash][req.sig.hex()] = req;
+        m_commitCache[req.block_hash][req.idx] = req;
     }
     /// add specified viewchange cache to the viewchange-cache
     inline void addViewChangeReq(ViewChangeReq const& req)
@@ -249,11 +249,11 @@ public:
         }
     }
     /// complemented functions for UTs
-    std::unordered_map<h256, std::unordered_map<std::string, SignReq>>& mutableSignCache()
+    std::unordered_map<h256, std::unordered_map<IDXTYPE, SignReq>>& mutableSignCache()
     {
         return m_signCache;
     }
-    std::unordered_map<h256, std::unordered_map<std::string, CommitReq>>& mutableCommitCache()
+    std::unordered_map<h256, std::unordered_map<IDXTYPE, CommitReq>>& mutableCommitCache()
     {
         return m_commitCache;
     }
@@ -320,11 +320,11 @@ private:
     /// cache for raw prepare request
     PrepareReq m_rawPrepareCache;
     /// cache for signReq(maps between hash and sign requests)
-    std::unordered_map<h256, std::unordered_map<std::string, SignReq>> m_signCache;
+    std::unordered_map<h256, std::unordered_map<IDXTYPE, SignReq>> m_signCache;
     /// cache for received-viewChange requests(maps between view and view change requests)
     std::unordered_map<VIEWTYPE, std::unordered_map<IDXTYPE, ViewChangeReq>> m_recvViewChangeReq;
     /// cache for commited requests(maps between hash and commited requests)
-    std::unordered_map<h256, std::unordered_map<std::string, CommitReq>> m_commitCache;
+    std::unordered_map<h256, std::unordered_map<IDXTYPE, CommitReq>> m_commitCache;
     /// cache for prepare request need to be backup and saved
     PrepareReq m_committedPrepareCache;
     /// cache for the future prepare cache

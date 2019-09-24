@@ -54,7 +54,7 @@ public:
     /// operator ==
     bool equalAll(Block const& _block) const
     {
-        return m_blockHeader == _block.blockHeader() && m_sigList == _block.sigList() &&
+        return m_blockHeader == _block.blockHeader() /*&& m_sigList == _block.sigList()*/ &&
                m_transactions == _block.transactions();
     }
 
@@ -100,7 +100,7 @@ public:
     BlockHeader const& blockHeader() const { return m_blockHeader; }
     BlockHeader& header() { return m_blockHeader; }
     h256 headerHash() const { return m_blockHeader.hash(); }
-    std::vector<std::pair<u256, Signature>> const& sigList() const { return m_sigList; }
+    // std::vector<std::pair<u256, Signature>> const& sigList() const { return m_sigList; }
 
     std::vector<u256> getAllNonces() const
     {
@@ -141,10 +141,12 @@ public:
     /// set block header
     void setBlockHeader(BlockHeader const& _blockHeader) { m_blockHeader = _blockHeader; }
     /// set sig list
+    /*
     void inline setSigList(std::vector<std::pair<u256, Signature>> const& _sigList)
     {
         m_sigList = _sigList;
     }
+    */
     /// get hash of block header
     h256 blockHeaderHash() { return m_blockHeader.hash(); }
     bool isSealed() const { return (m_blockHeader.sealer() != Invalid256); }
@@ -172,7 +174,7 @@ public:
         m_blockHeader.setSealer(Invalid256);
         m_transactions.clear();
         m_transactionReceipts.clear();
-        m_sigList.clear();
+        // m_sigList.clear();
         m_txsCache.clear();
         m_tReceiptsCache.clear();
         noteChange();
@@ -277,7 +279,7 @@ private:
     mutable Transactions m_transactions;
     TransactionReceipts m_transactionReceipts;
     /// sig list (field 3)
-    std::vector<std::pair<u256, Signature>> m_sigList;
+    // std::vector<std::pair<u256, Signature>> m_sigList;
     /// m_transactions converted bytes, when m_transactions changed,
     /// should refresh this catch when encode
 

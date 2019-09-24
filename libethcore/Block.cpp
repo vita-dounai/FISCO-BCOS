@@ -48,7 +48,7 @@ Block::Block(Block const& _block)
   : m_blockHeader(_block.blockHeader()),
     m_transactions(_block.transactions()),
     m_transactionReceipts(_block.transactionReceipts()),
-    m_sigList(_block.sigList()),
+    //m_sigList(_block.sigList()),
     m_txsCache(_block.m_txsCache),
     m_tReceiptsCache(_block.m_tReceiptsCache),
     m_transRootCache(_block.m_transRootCache),
@@ -63,7 +63,7 @@ Block& Block::operator=(Block const& _block)
     /// init transactionReceipts
     m_transactionReceipts = _block.transactionReceipts();
     /// init sigList
-    m_sigList = _block.sigList();
+    // m_sigList = _block.sigList();
     m_txsCache = _block.m_txsCache;
     m_tReceiptsCache = _block.m_tReceiptsCache;
     m_transRootCache = _block.m_transRootCache;
@@ -94,7 +94,7 @@ void Block::encode(bytes& _out) const
     m_blockHeader.encode(headerData);
     /// get block RLPStream
     RLPStream block_stream;
-    block_stream.appendList(5);
+    block_stream.appendList(4);
     // append block header
     block_stream.appendRaw(headerData);
     // append transaction list
@@ -104,7 +104,7 @@ void Block::encode(bytes& _out) const
     // append block hash
     block_stream.append(m_blockHeader.hash());
     // append sig_list
-    block_stream.appendVector(m_sigList);
+    // block_stream.appendVector(m_sigList);
     block_stream.swapOut(_out);
 }
 
@@ -117,7 +117,7 @@ void Block::encodeRC2(bytes& _out) const
     m_blockHeader.encode(headerData);
     /// get block RLPStream
     RLPStream block_stream;
-    block_stream.appendList(5);
+    block_stream.appendList(4);
     // append block header
     block_stream.appendRaw(headerData);
     // append transaction list
@@ -125,7 +125,7 @@ void Block::encodeRC2(bytes& _out) const
     // append block hash
     block_stream.append(m_blockHeader.hash());
     // append sig_list
-    block_stream.appendVector(m_sigList);
+    // block_stream.appendVector(m_sigList);
     // append transactionReceipts list
     block_stream.appendRaw(m_tReceiptsCache);
     block_stream.swapOut(_out);
@@ -301,7 +301,7 @@ void Block::decode(
         BOOST_THROW_EXCEPTION(ErrorBlockHash() << errinfo_comment("BlockHeader hash error"));
     }
     /// get sig_list
-    m_sigList = block_rlp[4].toVector<std::pair<u256, Signature>>();
+    // m_sigList = block_rlp[4].toVector<std::pair<u256, Signature>>();
 }
 
 void Block::decodeRC2(
@@ -328,7 +328,7 @@ void Block::decodeRC2(
         BOOST_THROW_EXCEPTION(ErrorBlockHash() << errinfo_comment("BlockHeader hash error"));
     }
     /// get sig_list
-    m_sigList = block_rlp[3].toVector<std::pair<u256, Signature>>();
+    // m_sigList = block_rlp[3].toVector<std::pair<u256, Signature>>();
 
     /// get transactionReceipt list
     if (_withReceipt)

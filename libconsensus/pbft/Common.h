@@ -27,6 +27,9 @@
 #include <libdevcrypto/Hash.h>
 #include <libethcore/Block.h>
 #include <libethcore/Exceptions.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #define PBFTENGINE_LOG(LEVEL) LOG(LEVEL) << LOG_BADGE("CONSENSUS") << LOG_BADGE("PBFT")
 #define PBFTSEALER_LOG(LEVEL) LOG(LEVEL) << LOG_BADGE("CONSENSUS") << LOG_BADGE("SEALER")
@@ -144,11 +147,11 @@ struct PBFTMsg
     /// block-header hash of the block handling
     h256 block_hash = h256();
     /// signature to the block_hash
-    Signature sig = Signature();
+    // Signature sig = Signature();
     /// signature to the hash of other fields except block_hash, sig and sig2
-    Signature sig2 = Signature();
+    // Signature sig2 = Signature();
     PBFTMsg() = default;
-    PBFTMsg(KeyPair const& _keyPair, int64_t const& _height, VIEWTYPE const& _view,
+    PBFTMsg(KeyPair const& , int64_t const& _height, VIEWTYPE const& _view,
         IDXTYPE const& _idx, h256 const _blockHash)
     {
         height = _height;
@@ -156,15 +159,16 @@ struct PBFTMsg
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = _blockHash;
-        sig = signHash(block_hash, _keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), _keyPair);
+        // sig = signHash(block_hash, _keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), _keyPair);
     }
     virtual ~PBFTMsg() = default;
 
     bool operator==(PBFTMsg const& req) const
     {
-        return height == req.height && view == req.view && block_hash == req.block_hash &&
-               sig == req.sig && sig2 == req.sig2;
+        return height == req.height && view == req.view && block_hash == req.block_hash /*&&
+               sig == req.sig && sig2 == req.sig2*/
+            ;
     }
 
     bool operator!=(PBFTMsg const& req) const { return !operator==(req); }
@@ -196,7 +200,8 @@ struct PBFTMsg
     /// trans PBFTMsg into RLPStream for encoding
     virtual void streamRLPFields(RLPStream& _s) const
     {
-        _s << height << view << idx << timestamp << block_hash << sig.asBytes() << sig2.asBytes();
+        _s << height << view << idx << timestamp
+           << block_hash /*<< sig.asBytes() << sig2.asBytes()*/;
     }
 
     /// populate specified rlp into PBFTMsg object
@@ -210,8 +215,8 @@ struct PBFTMsg
             idx = rlp[field = 2].toInt<IDXTYPE>();
             timestamp = rlp[field = 3].toInt<u256>();
             block_hash = rlp[field = 4].toHash<h256>(RLP::VeryStrict);
-            sig = dev::Signature(rlp[field = 5].toBytesConstRef());
-            sig2 = dev::Signature(rlp[field = 6].toBytesConstRef());
+            // sig = dev::Signature(rlp[field = 5].toBytesConstRef());
+            // sig2 = dev::Signature(rlp[field = 6].toBytesConstRef());
         }
         catch (Exception const& _e)
         {
@@ -229,8 +234,8 @@ struct PBFTMsg
         idx = MAXIDX;
         timestamp = Invalid256;
         block_hash = h256();
-        sig = Signature();
-        sig2 = Signature();
+        // sig = Signature();
+        // sig2 = Signature();
     }
 
     /// get the hash of the fields without block_hash, sig and sig2
@@ -252,7 +257,12 @@ struct PBFTMsg
         return dev::sign(keyPair.secret(), hash);
     }
 
-    std::string uniqueKey() const { return sig.hex() + sig2.hex(); }
+    std::string uniqueKey() const
+    {
+        boost::uuids::uuid tmp = boost::uuids::random_generator()();
+        return boost::uuids::to_string(tmp);
+        // return sig.hex() + sig2.hex();
+    }
 };
 
 /// definition of the prepare requests
@@ -281,15 +291,15 @@ struct PrepareReq : public PBFTMsg
      * @param _idx: index of the node that generates this PrepareReq
      */
     PrepareReq(
-        PrepareReq const& req, KeyPair const& keyPair, VIEWTYPE const& _view, IDXTYPE const& _idx)
+        PrepareReq const& req, KeyPair const& , VIEWTYPE const& _view, IDXTYPE const& _idx)
     {
         height = req.height;
         view = _view;
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = req.block_hash;
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        // sig = signHash(block_hash, keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), keyPair);
         block = req.block;
         pBlock = req.pBlock;
         p_execContext = nullptr;
@@ -302,7 +312,7 @@ struct PrepareReq : public PBFTMsg
      * @param _view : current view
      * @param _idx : index of the node that generates this PrepareReq
      */
-    PrepareReq(dev::eth::Block const& blockStruct, KeyPair const& keyPair, VIEWTYPE const& _view,
+    PrepareReq(dev::eth::Block const& blockStruct, KeyPair const& , VIEWTYPE const& _view,
         IDXTYPE const& _idx)
     {
         height = blockStruct.blockHeader().number();
@@ -310,8 +320,8 @@ struct PrepareReq : public PBFTMsg
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = blockStruct.blockHeader().hash();
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        // sig = signHash(block_hash, keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), keyPair);
         blockStruct.encode(block);
         pBlock = std::make_shared<dev::eth::Block>(std::move(blockStruct));
         p_execContext = nullptr;
@@ -323,7 +333,7 @@ struct PrepareReq : public PBFTMsg
      * @param sealing : object contains both block and block-execution-result
      * @param keyPair : keypair used to sign for the PrepareReq
      */
-    PrepareReq(PrepareReq const& req, Sealing const& sealing, KeyPair const& keyPair)
+    PrepareReq(PrepareReq const& req, Sealing const& sealing, KeyPair const& )
     {
         height = req.height;
         view = req.view;
@@ -332,8 +342,8 @@ struct PrepareReq : public PBFTMsg
         /// sealing.block.encode(block);
         timestamp = u256(utcTime());
         block_hash = sealing.block.blockHeader().hash();
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        // sig = signHash(block_hash, keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), keyPair);
         pBlock = std::make_shared<dev::eth::Block>(std::move(sealing.block));
         LOG(DEBUG) << "Re-generate prepare_requests since block has been executed, time = "
                    << timestamp << " , block_hash: " << block_hash.abridged();
@@ -359,7 +369,7 @@ struct PrepareReq : public PBFTMsg
         int field = 0;
         try
         {
-            block = _rlp[field = 7].toBytes();
+            block = _rlp[field = 5].toBytes();
         }
         catch (Exception const& _e)
         {
@@ -382,15 +392,15 @@ struct SignReq : public PBFTMsg
      * @param keyPair: keypair used to sign for the SignReq
      * @param _idx: index of the node that generates this SignReq
      */
-    SignReq(PrepareReq const& req, KeyPair const& keyPair, IDXTYPE const& _idx)
+    SignReq(PrepareReq const& req, KeyPair const& , IDXTYPE const& _idx)
     {
         height = req.height;
         view = req.view;
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = req.block_hash;
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        // sig = signHash(block_hash, keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), keyPair);
     }
 };
 
@@ -405,15 +415,15 @@ struct CommitReq : public PBFTMsg
      * @param keyPair: keypair used to sign for the CommitReq
      * @param _idx: index of the node that generates this CommitReq
      */
-    CommitReq(PrepareReq const& req, KeyPair const& keyPair, IDXTYPE const& _idx)
+    CommitReq(PrepareReq const& req, KeyPair const& , IDXTYPE const& _idx)
     {
         height = req.height;
         view = req.view;
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = req.block_hash;
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        // sig = signHash(block_hash, keyPair);
+        // sig2 = signHash(fieldsWithoutBlock(), keyPair);
     }
 };
 
@@ -429,7 +439,7 @@ struct ViewChangeReq : public PBFTMsg
      * @param _idx: index of the node that generates this ViewChangeReq
      * @param _hash: block hash
      */
-    ViewChangeReq(KeyPair const& keyPair, int64_t const& _height, VIEWTYPE const _view,
+    ViewChangeReq(KeyPair const& , int64_t const& _height, VIEWTYPE const _view,
         IDXTYPE const& _idx, h256 const& _hash)
     {
         height = _height;
@@ -437,8 +447,8 @@ struct ViewChangeReq : public PBFTMsg
         idx = _idx;
         timestamp = u256(utcTime());
         block_hash = _hash;
-        sig = signHash(block_hash, keyPair);
-        sig2 = signHash(fieldsWithoutBlock(), keyPair);
+        //sig = signHash(block_hash, keyPair);
+        //sig2 = signHash(fieldsWithoutBlock(), keyPair);
     }
 };
 }  // namespace consensus
