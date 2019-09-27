@@ -83,15 +83,15 @@ int main()
     auto hash = sha3(dev::ref(asBytes(data)));
 
     Signature signature;
-    startTime = utcTime();
-    for (auto i = 0; i < repeatCount; ++i)
-    {
+    //startTime = utcTime();
+    //for (auto i = 0; i < repeatCount; ++i)
+    //{
         signature = sign(keyPair.secret(), hash);
-    }
-    endTime = utcTime();
-    auto signCost = endTime - startTime;
-    cout << "[signPerformance] = " << repeatCount / ((double)signCost / 1000) << " tps"
-         << endl;
+    //}
+    //endTime = utcTime();
+    //auto signCost = endTime - startTime;
+    //cout << "[signPerformance] = " << repeatCount / ((double)signCost / 1000) << " tps"
+    //     << endl;
 
     startTime = utcTime();
     for (auto i = 0; i < repeatCount; ++i)

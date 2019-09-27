@@ -22,6 +22,8 @@
  */
 #include "sm2.h"
 #include <libdevcore/easylog.h>
+#include <libdevcore/Common.h>
+#include <iostream>
 #define SM3_DIGEST_LENGTH 32
 using namespace std;
 
@@ -143,7 +145,15 @@ bool SM2::sign(
     SM3_Update(&sm3Ctx, originalData, originalDataLen);
     SM3_Final(zValue, &sm3Ctx);
 
-    signData = ECDSA_do_sign_ex(zValue, zValueLen, NULL, NULL, sm2Key);
+    auto startTime = dev::utcTime();
+    for(auto i = 0; i < 100000; ++i)
+    {
+        signData = ECDSA_do_sign_ex(zValue, zValueLen, NULL, NULL, sm2Key);
+    }
+    auto endTime = dev::utcTime();
+    std::cout << "[HAHA-signPerformance] = " << 100000 / ((double)(endTime - startTime) / 1000) << " tps"
+        << std::endl; 
+    
     if (signData == NULL)
     {
         CRYPTO_LOG(ERROR) << "[SM2::sign] Error Of SM2 Signature";
