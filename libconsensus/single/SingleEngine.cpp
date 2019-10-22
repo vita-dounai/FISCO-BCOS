@@ -65,6 +65,7 @@ void SingleEngine::reportBlock(dev::eth::Block const& _block)
     {
         m_lastBlockTime = utcTime();
         m_highestBlock = _block.blockHeader();
+        updateMaxBlockTransactions();
 
         SINGLE_ENGINE_LOG(INFO) << LOG_DESC("[#reportBlock]^^^^^^^^Report Block")
                                 << LOG_KV("number", m_highestBlock.number())
