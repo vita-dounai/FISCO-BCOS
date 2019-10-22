@@ -43,7 +43,8 @@ enum ProtocolID
     PBFT = 8,
     BlockSync = 9,
     TxPool = 10,
-    Raft = 11
+    Raft = 11,
+    Single=12
 };
 
 enum VersionFlag

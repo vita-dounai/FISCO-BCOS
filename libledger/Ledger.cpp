@@ -29,6 +29,8 @@
 #include <libconsensus/pbft/PBFTSealer.h>
 #include <libconsensus/raft/RaftEngine.h>
 #include <libconsensus/raft/RaftSealer.h>
+#include <libconsensus/single/SingleEngine.h>
+#include <libconsensus/single/SingleSealer.h>
 #include <libdevcore/easylog.h>
 #include <libsync/SyncMaster.h>
 #include <libtxpool/TxPool.h>
@@ -584,6 +586,25 @@ std::shared_ptr<Sealer> Ledger::createRaftSealer()
     return raftSealer;
 }
 
+std::shared_ptr<Sealer> Ledger::createSingleSealer()
+{
+    Ledger_LOG(DEBUG) << LOG_BADGE("initLedger") << LOG_BADGE("createSingleSealer");
+    if (!m_txPool || !m_blockChain || !m_sync || !m_blockVerifier || !m_dbInitializer)
+    {
+        Ledger_LOG(DEBUG) << LOG_BADGE("initLedger") << LOG_DESC("createSingleSealer Failed");
+        return nullptr;
+    }
+
+    dev::PROTOCOL_ID protocol_id = getGroupProtoclID(m_groupId, ProtocolID::Single);
+    Ledger_LOG(DEBUG) << LOG_BADGE("initLedger") << LOG_BADGE("createSingleSealer")
+                      << LOG_KV("Protocol", protocol_id);
+    std::shared_ptr<Sealer> singleSealer =
+        std::make_shared<SingleSealer>(m_service, m_txPool, m_blockChain, m_sync, m_blockVerifier,
+            protocol_id, m_keyPair, m_param->mutableConsensusParam().sealerList);
+    return singleSealer;
+}
+
+
 /// init consensus
 bool Ledger::consensusInitFactory()
 {
@@ -592,6 +613,17 @@ bool Ledger::consensusInitFactory()
     {
         /// create RaftSealer
         m_sealer = createRaftSealer();
+        if (!m_sealer)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    if (dev::stringCmpIgnoreCase(m_param->mutableConsensusParam().consensusType, "single") == 0)
+    {
+        /// create SingleSealer
+        m_sealer = createSingleSealer();
         if (!m_sealer)
         {
             return false;
