@@ -153,8 +153,9 @@ void Sealer::loadTransactions(uint64_t const& transToFetch)
 /// check whether the blocksync module is syncing
 bool Sealer::isBlockSyncing()
 {
-    SyncStatus state = m_blockSync->status();
-    return (state.state != SyncState::Idle);
+    return false;
+    // SyncStatus state = m_blockSync->status();
+    // return (state.state != SyncState::Idle);
 }
 
 /**
