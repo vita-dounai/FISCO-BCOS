@@ -29,6 +29,7 @@ public:
 
     void start() override
     {
+        updateMaxBlockTransactions();
         m_accountType = dev::consensus::NodeAccountType::SealerAccount;
         ConsensusEngineBase::start();
         SINGLE_ENGINE_LOG(INFO) << LOG_DESC("[#start]Single engine started")
