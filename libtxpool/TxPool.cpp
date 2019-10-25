@@ -105,7 +105,7 @@ std::pair<h256, Address> TxPool::submitTransactions()
         m_signalled.wait_for(l, std::chrono::milliseconds(20));
         return std::make_pair(dev::h256(), dev::FixedHash<20>());
     }
-    m_totalTxsNum += 1;
+    //m_totalTxsNum += 1;
     return submitTransactions(_tx);
 }
 
